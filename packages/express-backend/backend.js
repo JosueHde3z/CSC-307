@@ -187,6 +187,7 @@
 // /////////////////////////////////////////////////////////
 // backend.js
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const port = 8000;
@@ -240,6 +241,8 @@ app.post("/users", (req, res) => {
     res.send();
 });
 
+app.use(cors());
+
 app.use(express.json());
 
 app.get("/users", (req, res) => {
@@ -265,7 +268,7 @@ app.get("/users/:id", (req, res) => {
 
 app.listen(port, () => {
   console.log(
-    `Example app listening at http://localhost:${port}/users"`
+    `Example app listening at http://localhost:${port}"`
   );
 });
 /////////////////////////////////////////////////////////
