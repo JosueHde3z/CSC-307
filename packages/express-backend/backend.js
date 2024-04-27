@@ -323,165 +323,261 @@
 //   );
 // });
 // /////////////////////////////////////////////////////////
+// // backend.js
+// import express from "express";
+// import cors from "cors";
+
+// const app = express();
+
+// app.use(cors());
+
+// app.use(express.json());
+
+// const port = 8000;
+// const users = {
+//   users_list: [
+//     {
+//       id: "xyz789",
+//       name: "Charlie",
+//       job: "Janitor",
+//     },
+//     {
+//       id: "abc123",
+//       name: "Mac",
+//       job: "Bouncer",
+//     },
+//     {
+//       id: "ppp222",
+//       name: "Mac",
+//       job: "Professor",
+//     },
+//     {
+//       id: "yat999",
+//       name: "Dee",
+//       job: "Aspring actress",
+//     },
+//     {
+//       id: "zap555",
+//       name: "Dennis",
+//       job: "Bartender",
+//     },
+//   ],
+// };
+
+// const findUserByName = (name) => 
+// {
+//   return users["users_list"].filter((user) => user["name"] === name);
+// };
+
+// const findUserById = (id) => 
+// {
+//   users["users_list"].find((user) => user["id"] === id);
+// };
+
+// const addUser = (user) => 
+// {
+//   const newUser = 
+//   {
+//     id: generateId(), // Generate random ID
+//     ...user,
+//   };
+//   users["users_list"].push(newUser);
+//   return newUser;
+// };
+
+// const delUser = (id) => 
+// {
+//   // Find the user index by ID
+//   const index = users["users_list"].findIndex((user) => user.id === id);
+
+//   // If the user exists, remove it from the array
+//   if (index !== -1) //-1 means no user found so if it find something delete it
+//   {
+//     const deletedUser = users["users_list"].splice(index, 1)[0]; // Remove the user and get the deleted user
+//     // const deletedUser = users["users_list"].splice(index, 1); // Remove the user and get the deleted user
+//     return deletedUser;
+//   } 
+//   else 
+//   {
+//     return null; // User not found
+//   }
+// };
+
+// // ID generator function
+// const generateId = () => 
+// {
+//   return Math.random().toString(36).substr(2, 9); // Generate random alphanumeric ID
+// };
+
+// // Adding search all for matching job/name
+// const findUsersByNameAndJob = (name, job) => 
+// {
+//   return users["users_list"].filter((user) => user.name === name && user.job === job);
+// };
+
+// app.post("/users", (req, res) => 
+// {
+//   const userToAdd = req.body;
+//   const newUser = addUser(userToAdd);
+//   res.status(201).send(newUser); // Setting the response status code to 201 and sending the newly created user
+// });
+
+
+
+// app.delete("/users/:id", (req, res) => 
+// {
+//   const id = req.params.id;
+//   const deletedUser = delUser(id);
+//   if (deletedUser !== null) 
+//   {
+//     res.status(204).send(`User with ID ${id} has been deleted.`);
+//   } 
+//   else 
+//   {
+//     res.status(404).send("User not found.");
+//   }
+// });
+
+// app.get("/", (req, res) => 
+// {
+//   res.send("Hello World!");
+// });
+
+// app.get("/users", (req, res) => 
+// {
+//   const name = req.query.name;
+//   const job = req.query.job;
+
+//   if (name !== undefined && job !== undefined) 
+//   {
+//     let result = findUsersByNameAndJob(name, job);
+//     result = { users_list: result };
+//     res.send(result);
+//   } 
+//   else if (name !== undefined) 
+//   {
+//     let result = findUserByName(name);
+//     result = { users_list: result };
+//     res.send(result);
+//   } 
+//   else 
+//   {
+//     res.send(users);
+//   }
+// });
+
+// app.get("/users/:id", (req, res) => 
+// {
+//   const id = req.params["id"]; //or req.params.id
+//   let result = findUserById(id);
+//   if (result === undefined) 
+//   {
+//     res.status(404).send("Resource not found.");
+//   } 
+//   else 
+//   {
+//     res.send(result);
+//   }
+// });
+
+// app.listen(port, () => 
+// {
+//   console.log(`Example app listening at http://localhost:${port}`);
+// });
+// /////////////////////////////////////////////////////////
 // backend.js
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
+import User from "./users.js"; // Import the User model
+import { findUsersByNameAndJob } from "./user-services.js";
 
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 
 const port = 8000;
-const users = {
-  users_list: [
-    {
-      id: "xyz789",
-      name: "Charlie",
-      job: "Janitor",
-    },
-    {
-      id: "abc123",
-      name: "Mac",
-      job: "Bouncer",
-    },
-    {
-      id: "ppp222",
-      name: "Mac",
-      job: "Professor",
-    },
-    {
-      id: "yat999",
-      name: "Dee",
-      job: "Aspring actress",
-    },
-    {
-      id: "zap555",
-      name: "Dennis",
-      job: "Bartender",
-    },
-  ],
-};
 
-const findUserByName = (name) => 
-{
-  return users["users_list"].filter((user) => user["name"] === name);
-};
-
-const findUserById = (id) => 
-{
-  users["users_list"].find((user) => user["id"] === id);
-};
-
-const addUser = (user) => 
-{
-  const newUser = 
-  {
-    id: generateId(), // Generate random ID
-    ...user,
-  };
-  users["users_list"].push(newUser);
-  return newUser;
-};
-
-const delUser = (id) => 
-{
-  // Find the user index by ID
-  const index = users["users_list"].findIndex((user) => user.id === id);
-
-  // If the user exists, remove it from the array
-  if (index !== -1) //-1 means no user found so if it find something delete it
-  {
-    const deletedUser = users["users_list"].splice(index, 1)[0]; // Remove the user and get the deleted user
-    // const deletedUser = users["users_list"].splice(index, 1); // Remove the user and get the deleted user
-    return deletedUser;
-  } 
-  else 
-  {
-    return null; // User not found
-  }
-};
-
-// ID generator function
-const generateId = () => 
-{
-  return Math.random().toString(36).substr(2, 9); // Generate random alphanumeric ID
-};
-
-// Adding search all for matching job/name
-const findUsersByNameAndJob = (name, job) => 
-{
-  return users["users_list"].filter((user) => user.name === name && user.job === job);
-};
-
-app.post("/users", (req, res) => 
-{
-  const userToAdd = req.body;
-  const newUser = addUser(userToAdd);
-  res.status(201).send(newUser); // Setting the response status code to 201 and sending the newly created user
+// POST route to add a new user
+app.post("/users", (req, res) => {
+  const userData = req.body;
+  const newUser = new User(userData);
+  newUser
+    .save()
+    .then((user) => {
+      res.status(201).send(user);
+    })
+    .catch((error) => {
+      res.status(400).send(error.message);
+    });
 });
 
 
 
-app.delete("/users/:id", (req, res) => 
-{
+// DELETE /users/:id route
+app.delete('/users/:id', (req, res) => {
   const id = req.params.id;
-  const deletedUser = delUser(id);
-  if (deletedUser !== null) 
-  {
-    res.status(204).send(`User with ID ${id} has been deleted.`);
-  } 
-  else 
-  {
-    res.status(404).send("User not found.");
+  User.findByIdAndDelete(id)
+    .then(deletedUser => {
+      if (deletedUser) {
+        res.status(204).send(`User with ID ${id} has been deleted.`);
+      } else {
+        res.status(404).send('User not found.');
+      }
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
+// GET /users?name=<name>&job=<job> route
+app.get('/users', (req, res) => {
+  const { name, job } = req.query;
+  if (name && job) {
+    findUsersByNameAndJob(name, job)
+      .then(users => {
+        res.send({ users_list: users });
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        res.status(500).send('Internal Server Error');
+      });
+  } else {
+    res.status(400).send('Bad Request: Both name and job parameters are required');
   }
 });
 
-app.get("/", (req, res) => 
-{
+// GET route to find a user by ID
+app.get("/users/:id", (req, res) => {
+  const userId = req.params.id;
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res.status(404).send("User not found.");
+      } else {
+        res.send(user);
+      }
+    })
+    .catch((error) => {
+      res.status(500).send(error.message);
+    });
+});
+
+app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.get("/users", (req, res) => 
-{
-  const name = req.query.name;
-  const job = req.query.job;
+mongoose.connect("mongodb://127.0.0.1:27017/users")
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Example app listening at http://localhost:${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error.message);
+  });
 
-  if (name !== undefined && job !== undefined) 
-  {
-    let result = findUsersByNameAndJob(name, job);
-    result = { users_list: result };
-    res.send(result);
-  } 
-  else if (name !== undefined) 
-  {
-    let result = findUserByName(name);
-    result = { users_list: result };
-    res.send(result);
-  } 
-  else 
-  {
-    res.send(users);
-  }
-});
 
-app.get("/users/:id", (req, res) => 
-{
-  const id = req.params["id"]; //or req.params.id
-  let result = findUserById(id);
-  if (result === undefined) 
-  {
-    res.status(404).send("Resource not found.");
-  } 
-  else 
-  {
-    res.send(result);
-  }
-});
-
-app.listen(port, () => 
-{
-  console.log(`Example app listening at http://localhost:${port}`);
-});
 /////////////////////////////////////////////////////////
